@@ -6,8 +6,7 @@
 #include <iostream>
 #include <cassert>
 #include "treenode.h"
-
-using std::endl;
+using namespace std;
 
 template<class NODETYPE>
 class Tree {
@@ -20,7 +19,9 @@ public:
 
     void searchTree(const NODETYPE &data);
 
-   // void treeHeight();
+    void removeData(const NODETYPE &data);
+
+    void treeHeigth();
 private:
     TreeNode<NODETYPE> *rootPtr;
 
@@ -30,18 +31,40 @@ private:
 
     void inOrderHelper(TreeNode<NODETYPE> *) const;
 
-   // int treeHeightHelper(TreeNode<NODETYPE>*);
+    bool removeDataHelper(TreeNode<NODETYPE> *, NODETYPE) const;
 
-   // int bigger(int a, int b);
+    int treeHeigthHelper(TreeNode<NODETYPE>*);
+
 
 };
 
 template<class NODETYPE>
 Tree<NODETYPE>::Tree() { rootPtr = 0; }
 
+template <class NODETYPE>
+void Tree<NODETYPE>::treeHeigth()  {
+    int size = treeHeigthHelper(rootPtr);
+    std::cout<<size<<" é a altura da árvore!\n";
+}
+
 template<class NODETYPE>
 void Tree<NODETYPE>::insertNode(const NODETYPE &value) {
     insertNodeHelper(&rootPtr, value);
+}
+
+template<class NODETYPE>
+void Tree<NODETYPE>::searchTree(const NODETYPE &data) {
+    searchTreeHelper(rootPtr, data);
+}
+
+template <class NODETYPE>
+void Tree<NODETYPE>::removeData(const NODETYPE &data){
+
+    if(removeDataHelper(&data)){
+        cout << "Valor: " <<data<<" removido com sucesso!"<<endl;
+    } else {
+        cout << "Valor: "<<data<<" não pode ser removido!"<<endl;
+    }
 }
 
 template<class NODETYPE>
@@ -60,21 +83,7 @@ void Tree<NODETYPE>::insertNodeHelper(
         std::cout << "Valor " << val << " duplicado" << std::endl;
     }
 }
-/*template<class NODETYPE>
-int Tree<NODETYPE>::treeHeightHelper(TreeNode<NODETYPE> *ptr) {
 
-    if(ptr == 0){
-        return  0;
-    }
-    int leftHeight = treeHeightHelper(ptr->leftPtr);
-    int rightHeight = treeHeightHelper(ptr->rigthPtr);
-
-    return (1 + bigger(rightHeight, leftHeight));
-}
-int bigger( int a, int b){
-    return ((a > b) ? a : b);
-}
-*/
 template<class NODETYPE>
 void Tree<NODETYPE>::searchTreeHelper(
         TreeNode<NODETYPE> *ptr, const NODETYPE &data) {
@@ -106,15 +115,40 @@ void Tree<NODETYPE>::inOrderHelper(TreeNode<NODETYPE> *ptr) const {
     }
 }
 
+
+
 template<class NODETYPE>
-void Tree<NODETYPE>::searchTree(const NODETYPE &data) {
-    searchTreeHelper(rootPtr, data);
+int Tree<NODETYPE>::treeHeigthHelper(TreeNode<NODETYPE> *root) {
+
+    if (root == nullptr)
+        return 0;
+    else {
+        int lHeight = treeHeigthHelper(root->leftPtr);
+        int rHeight = treeHeigthHelper(root->rigthPtr);
+
+        return lHeight > rHeight ? lHeight + 1 : rHeight + 1;
+    }
 }
-/*
-template <class NODETYPE>
-void Tree<NODETYPE>::treeHeight()  {
-    std::cout<<treeHeightHelper(rootPtr)<<" é a altura da árvore!\n";
+
+template<class NODETYPE>
+bool Tree<NODETYPE>::removeDataHelper(TreeNode<NODETYPE> *root, NODETYPE data) const {
+
+    if (root == nullptr)
+        return false;
+    else {
+        if(root->getData() == data){
+            TreeNode<NODETYPE> auxRoot(0);
+
+            auxRoot.getData();
+        }
+    }
 }
-*/
+
+
+
+
+
+
+
 
 #endif

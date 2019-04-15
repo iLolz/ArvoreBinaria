@@ -15,10 +15,10 @@ int main() {
     do {
     cout << "\nSelecione uma opção"
             "\n1)Inserir na árvore"                     ///implementado
-            "\n2)Procurar na árvore"                    ///implementado
-            "\n3)Percorrer árvore (inOrder)"            ///implementado
-            "\n4)Percorrer árvore (Largura)"            //Não implementado
-            "\n5)Altura da árvore\n";                   //Não implementado
+            "\n3)Procurar na árvore"                    ///implementado
+            "\n4)Percorrer árvore (inOrder)"            ///implementado
+            "\n5)Percorrer árvore (Largura)"            //Não implementado
+            "\n6)Altura da árvore\n";                   //Não implementado
 
     cin >> switchOp;
 
@@ -33,22 +33,23 @@ int main() {
         case '2':
             cin >> searchValue;
             intTree.searchTree(searchValue);
-                ///PEsquisa
+            ///Remove
             break;
         case '3':
-
+            ///Pesquisa
+            cin >> searchValue;
+            intTree.searchTree(searchValue);
+        case '4':
+            ///Percorrer inOrder
             cout << "Percorrendo inOrder: ";
             intTree.inOrderTraversal();
             break;
-        case '4':
+        case '5':
             ///Percorre Largura (Pela "linha" )
             break;
-        case '5':
+        case '6':
             ///Altura da arvore
-            /* erro
-             *Undefined symbols for architeture x86_...
-             */
-            //intTree.treeHeight();
+            intTree.treeHeigth();
             break;
     }
 }while (switchOp!= '0');
