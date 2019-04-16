@@ -27,14 +27,15 @@ private:
 
     void insertNodeHelper(TreeNode<NODETYPE> **, const NODETYPE &);
 
-    void searchTreeHelper(TreeNode<NODETYPE> *, const NODETYPE &);
+    bool searchTreeHelper(TreeNode<NODETYPE> *, const NODETYPE &);
 
     void inOrderHelper(TreeNode<NODETYPE> *) const;
 
-    bool removeDataHelper(TreeNode<NODETYPE> *, NODETYPE) const;
+    TreeNode<NODETYPE>* removeDataHelper(TreeNode<NODETYPE> *, NODETYPE) const;
 
     int treeHeigthHelper(TreeNode<NODETYPE>*);
 
+    TreeNode<NODETYPE>* valorMinimoNo(TreeNode<NODETYPE> *node) const;
 
 };
 
@@ -60,11 +61,7 @@ void Tree<NODETYPE>::searchTree(const NODETYPE &data) {
 template <class NODETYPE>
 void Tree<NODETYPE>::removeData(const NODETYPE &data){
 
-    if(removeDataHelper(&data)){
-        cout << "Valor: " <<data<<" removido com sucesso!"<<endl;
-    } else {
-        cout << "Valor: "<<data<<" não pode ser removido!"<<endl;
-    }
+       rootPtr = removeDataHelper(rootPtr, data);
 }
 
 template<class NODETYPE>
@@ -76,7 +73,6 @@ void Tree<NODETYPE>::insertNodeHelper(
         assert(*ptr != 0);
     } else if (val < (*ptr)->data) {
         insertNodeHelper(&((*ptr)->leftPtr), val);
-
     } else if (val > (*ptr)->data) {
         insertNodeHelper(&((*ptr)->rigthPtr), val);
     } else {
@@ -85,20 +81,19 @@ void Tree<NODETYPE>::insertNodeHelper(
 }
 
 template<class NODETYPE>
-void Tree<NODETYPE>::searchTreeHelper(
+bool Tree<NODETYPE>::searchTreeHelper(
         TreeNode<NODETYPE> *ptr, const NODETYPE &data) {
 
-    if (ptr != 0) {
+    if (ptr != nullptr) {
         if (ptr->data == data) {
-            std::cout << "Objeto \'" << data << "\' está na árvore!\n";
-            return;
+            cout<<"Item "<<data<<" encontrado na árvore\n\n!";
         } else if (ptr->data > data) {
             searchTreeHelper(ptr->leftPtr, data);
         } else if (ptr->data < data) {
             searchTreeHelper(ptr->rigthPtr, data);
         }
     } else {
-        std::cout << "Objeto não encontrado na árvore\n";
+        cout<<"Item "<<data<<" não encontrdado!\n\n";
     }
 }
 
@@ -130,25 +125,47 @@ int Tree<NODETYPE>::treeHeigthHelper(TreeNode<NODETYPE> *root) {
     }
 }
 
+
 template<class NODETYPE>
-bool Tree<NODETYPE>::removeDataHelper(TreeNode<NODETYPE> *root, NODETYPE data) const {
+TreeNode<NODETYPE>* Tree<NODETYPE>::removeDataHelper(TreeNode<NODETYPE> *root, NODETYPE data) const {
 
     if (root == nullptr)
-        return false;
+        return root;
+    if ( data < root->getData())
+        root->leftPtr = removeDataHelper(root->leftPtr, data);
+    else if (data > root->getData())
+        root->rigthPtr = removeDataHelper(root->rigthPtr, data);
     else {
-        if(root->getData() == data){
-            TreeNode<NODETYPE> auxRoot(0);
-
-            auxRoot.getData();
+        if (root->leftPtr == NULL){
+            TreeNode<NODETYPE> *aux = root->rigthPtr;
+            free(root);
+            return aux;
         }
+        else if(root->rigthPtr == nullptr){
+            TreeNode<NODETYPE> *aux = root->leftPtr;
+            free(root);
+            return aux;
+        }
+
+        TreeNode<NODETYPE>* aux = valorMinimoNo(root->rigthPtr);
+
+        root->data = aux->getData();
+
+        root->rigthPtr = removeDataHelper(root->rigthPtr, aux->data);
     }
+    return root;
 }
 
+template<class NODETYPE>
+TreeNode<NODETYPE>* Tree<NODETYPE>::valorMinimoNo(TreeNode<NODETYPE> *node) const {
 
+    TreeNode<NODETYPE> *current = node;
 
+    while(current->leftPtr)
+        current = current->leftPtr;
 
-
-
+    return current;
+}
 
 
 #endif

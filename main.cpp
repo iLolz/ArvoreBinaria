@@ -24,16 +24,16 @@ int main() {
 
     switch (switchOp) {
         case '1':
-            cout << "Digite 10 valores inteiros:" << endl;
+            cout << "Digite 10 valores:" << endl;
             for (int i = 0; i < 10; i++) {
                 cin >> intVal;
                 intTree.insertNode(intVal);
             }
             break;
         case '2':
+            cout << "Digite o valor a ser removido:"<<endl;
             cin >> searchValue;
-            intTree.searchTree(searchValue);
-            ///Remove
+            intTree.removeData(searchValue);
             break;
         case '3':
             ///Pesquisa
@@ -51,7 +51,11 @@ int main() {
             ///Altura da arvore
             intTree.treeHeigth();
             break;
+        default:
+            cout << "Opção inválida!\n\n";
+            break;
     }
+
 }while (switchOp!= '0');
 
     return 0;
