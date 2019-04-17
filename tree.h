@@ -7,6 +7,7 @@
 #include <cassert>
 #include "treenode.h"
 #include <vector>
+#include <math.h>
 
 using namespace std;
 
@@ -48,14 +49,27 @@ private:
 
     void printGivenLevel(TreeNode<NODETYPE> *, int level);
 
+    ///FUNÇÕES PARA O DSW
+
     void applyDSWHelper(TreeNode<NODETYPE> *);
 
-    vector<NODETYPE> getOrdenedVector(TreeNode<NODETYPE> *, vector<NODETYPE> vet);
+    TreeNode<NODETYPE> *leftRotate(TreeNode<NODETYPE> *);
+
+    TreeNode<NODETYPE> *rightRotate(TreeNode<NODETYPE> *);
+
+    TreeNode<NODETYPE> *createBackbone(TreeNode<NODETYPE> *);
+
+    int nodeCount(TreeNode<NODETYPE> *);
+
+    TreeNode<NODETYPE> *balanceTree(TreeNode<NODETYPE> *, int nNo);
+
 };
 
 template<class NODETYPE>
 void Tree<NODETYPE>::applyDSW() {
-    applyDSWHelper(rootPtr);
+
+    TreeNode<NODETYPE> *root = rootPtr;
+    applyDSWHelper(root);
 }
 
 template<class NODETYPE>
@@ -125,7 +139,6 @@ void Tree<NODETYPE>::searchTreeHelper(
     }
 }
 
-
 template<class NODETYPE>
 void Tree<NODETYPE>::inOrderHelper(TreeNode<NODETYPE> *ptr) const {
 
@@ -140,7 +153,7 @@ void Tree<NODETYPE>::inOrderHelper(TreeNode<NODETYPE> *ptr) const {
 template<class NODETYPE>
 int Tree<NODETYPE>::treeHeigthHelper(TreeNode<NODETYPE> *root) {
 
-    if (root == nullptr)
+    if (root == 0)
         return 0;
     else {
         int lHeight = treeHeigthHelper(root->leftPtr);
@@ -155,7 +168,7 @@ int Tree<NODETYPE>::treeHeigthHelper(TreeNode<NODETYPE> *root) {
 template<class NODETYPE>
 TreeNode<NODETYPE> *Tree<NODETYPE>::removeDataHelper(TreeNode<NODETYPE> *root, NODETYPE data) const {
 
-    if (root == nullptr)
+    if (root == 0)
         return root;
     if (data < root->getData())
         root->leftPtr = removeDataHelper(root->leftPtr, data);
@@ -166,7 +179,7 @@ TreeNode<NODETYPE> *Tree<NODETYPE>::removeDataHelper(TreeNode<NODETYPE> *root, N
             TreeNode<NODETYPE> *aux = root->rigthPtr;
             free(root);
             return aux;
-        } else if (root->rigthPtr == nullptr) {
+        } else if (root->rigthPtr == 0) {
             TreeNode<NODETYPE> *aux = root->leftPtr;
             free(root);
             return aux;
@@ -222,42 +235,99 @@ void Tree<NODETYPE>::printGivenLevel(TreeNode<NODETYPE> *root, int level) {
 
 ///Inicio do balanceamentoDSW
 ///Pegar o vetor ordernado
-template<class NODETYPE>
-vector<NODETYPE> Tree<NODETYPE>::getOrdenedVector(TreeNode<NODETYPE> *ptr, vector<NODETYPE> vet) {
-    if (ptr != 0) {
-        getOrdenedVector(ptr->leftPtr, vet);
-        vet.push_back(ptr->data);
-        getOrdenedVector(ptr->rigthPtr, vet);
-    }
-
-    return vet;
-}
 
 template<class NODETYPE>
 void Tree<NODETYPE>::applyDSWHelper(TreeNode<NODETYPE> *ptr) {
-    vector<NODETYPE> vet;
-    vector<NODETYPE> vet2;
-    ///Monta o vetor ordenado
-    vet2 = getOrdenedVector(ptr, vet);
+    inOrderLevelHelper(ptr);
+    ptr = createBackbone(ptr);
+    int size = nodeCount(ptr);
+    inOrderLevelHelper(ptr);
 
-    ///Apaga a árvore
-    for(int i = 0; i < vet2.size(); i ++)
-        cout<<vet2.front();
-
-    for (int i = 0; i < vet.size(); i++) {
-        cout<<i;
-        removeDataHelper(ptr, vet[i]);
-    }
-
-
-    ///Cria árvore em vetor
-
-    for (int i = 0; i < vet.size(); i++) {
-        insertNode(vet[i]);
-    }
-
+    int h = treeHeigthHelper(ptr);
+    while( treeHeigthHelper(ptr) > log(nodeCount(ptr)))
+        ptr = balanceTree(ptr, size);
     inOrderLevelHelper(ptr);
 }
+
+template<class NODETYPE>
+TreeNode<NODETYPE> *Tree<NODETYPE>::leftRotate(TreeNode<NODETYPE> *root) {
+    if (root->rigthPtr != 0) {
+        TreeNode<NODETYPE> *rightChild = root->rigthPtr;
+        root->rigthPtr = rightChild->rigthPtr;
+        rightChild->rigthPtr = rightChild->leftPtr;
+        rightChild->leftPtr = root->leftPtr;
+        root->leftPtr = rightChild;
+
+        NODETYPE temp = root->data;
+        root->data = rightChild->data;
+        rightChild->data = temp;
+    }
+
+    return root;
+}
+
+template<class NODETYPE>
+TreeNode<NODETYPE> *Tree<NODETYPE>::rightRotate(TreeNode<NODETYPE> *root) {
+
+    if (root->leftPtr != 0) {
+        TreeNode<NODETYPE> *leftChild = root->leftPtr;
+        root->leftPtr = leftChild->leftPtr;
+        leftChild->leftPtr = leftChild->rigthPtr;
+        leftChild->rigthPtr = root->rigthPtr;
+        root->rigthPtr = leftChild;
+
+        NODETYPE temp = root->data;
+        root->data = leftChild->data;
+        leftChild->data = temp;
+    }
+    return root;
+}
+
+template<class NODETYPE>
+TreeNode<NODETYPE> *Tree<NODETYPE>::createBackbone(TreeNode<NODETYPE> *root) {
+
+    while (root->leftPtr != 0) {
+        root = rightRotate(root);
+    }
+    if (root->rigthPtr != 0) {
+        root->rigthPtr = createBackbone(root->rigthPtr);
+    }
+    return root;
+}
+
+template<class NODETYPE>
+int Tree<NODETYPE>::nodeCount(TreeNode<NODETYPE> *root) {
+
+    if (root == 0)
+        return 0;
+    int i = 1;
+    while (root->rigthPtr != 0) {
+        root = root->rigthPtr;
+        i++;
+    }
+    return i;
+}
+
+template<class NODETYPE>
+TreeNode<NODETYPE> *Tree<NODETYPE>::balanceTree(TreeNode<NODETYPE> *root, int nNo) {
+    int times = pow(2, ((int) log(nNo + 1) - 1));
+
+    TreeNode<NODETYPE> *newRoot = root;
+
+    for (int i = 0; i < nNo - times; i++) {
+        newRoot = leftRotate(root);
+        root = newRoot->rigthPtr;
+        for (int j = 0; j < (times % 2 == 0) ? (times / 2) : ((times - 1) / 2); j++) {
+            root = leftRotate(root);
+            root = root->rigthPtr;
+        }
+        nNo >>= 1;
+    }
+
+    inOrderLevelHelper(newRoot);
+    return newRoot;
+}
+
 
 
 ///Fim do mostra pela linha
