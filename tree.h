@@ -6,6 +6,8 @@
 #include <iostream>
 #include <cassert>
 #include "treenode.h"
+#include <vector>
+
 using namespace std;
 
 template<class NODETYPE>
@@ -21,32 +23,53 @@ public:
 
     void removeData(const NODETYPE &data);
 
+    void inOrderLevel();
+
     void treeHeigth();
+
+    void applyDSW();
+
 private:
     TreeNode<NODETYPE> *rootPtr;
 
     void insertNodeHelper(TreeNode<NODETYPE> **, const NODETYPE &);
 
-    bool searchTreeHelper(TreeNode<NODETYPE> *, const NODETYPE &);
+    void searchTreeHelper(TreeNode<NODETYPE> *, const NODETYPE &);
 
     void inOrderHelper(TreeNode<NODETYPE> *) const;
 
-    TreeNode<NODETYPE>* removeDataHelper(TreeNode<NODETYPE> *, NODETYPE) const;
+    void inOrderLevelHelper(TreeNode<NODETYPE> *);
 
-    int treeHeigthHelper(TreeNode<NODETYPE>*);
+    TreeNode<NODETYPE> *removeDataHelper(TreeNode<NODETYPE> *, NODETYPE) const;
 
-    TreeNode<NODETYPE>* valorMinimoNo(TreeNode<NODETYPE> *node) const;
+    int treeHeigthHelper(TreeNode<NODETYPE> *);
 
+    TreeNode<NODETYPE> *valorMinimoNo(TreeNode<NODETYPE> *node) const;
+
+    void printGivenLevel(TreeNode<NODETYPE> *, int level);
+
+    void applyDSWHelper(TreeNode<NODETYPE> *);
+
+    vector<NODETYPE> getOrdenedVector(TreeNode<NODETYPE> *, vector<NODETYPE> vet);
 };
+
+template<class NODETYPE>
+void Tree<NODETYPE>::applyDSW() {
+    applyDSWHelper(rootPtr);
+}
 
 template<class NODETYPE>
 Tree<NODETYPE>::Tree() { rootPtr = 0; }
 
-template <class NODETYPE>
-void Tree<NODETYPE>::treeHeigth()  {
+template<class NODETYPE>
+void Tree<NODETYPE>::treeHeigth() {
     int size = treeHeigthHelper(rootPtr);
-    std::cout<<size<<" é a altura da árvore!\n";
+    std::cout << size << " é a altura da árvore!\n";
 }
+
+
+template<class NODETYPE>
+void Tree<NODETYPE>::inOrderTraversal() const { inOrderHelper(rootPtr); }
 
 template<class NODETYPE>
 void Tree<NODETYPE>::insertNode(const NODETYPE &value) {
@@ -58,10 +81,15 @@ void Tree<NODETYPE>::searchTree(const NODETYPE &data) {
     searchTreeHelper(rootPtr, data);
 }
 
-template <class NODETYPE>
-void Tree<NODETYPE>::removeData(const NODETYPE &data){
+template<class NODETYPE>
+void Tree<NODETYPE>::inOrderLevel() {
+    inOrderLevelHelper(rootPtr);
+}
 
-       rootPtr = removeDataHelper(rootPtr, data);
+template<class NODETYPE>
+void Tree<NODETYPE>::removeData(const NODETYPE &data) {
+
+    rootPtr = removeDataHelper(rootPtr, data);
 }
 
 template<class NODETYPE>
@@ -81,24 +109,22 @@ void Tree<NODETYPE>::insertNodeHelper(
 }
 
 template<class NODETYPE>
-bool Tree<NODETYPE>::searchTreeHelper(
+void Tree<NODETYPE>::searchTreeHelper(
         TreeNode<NODETYPE> *ptr, const NODETYPE &data) {
 
-    if (ptr != nullptr) {
+    if (ptr != 0) {
         if (ptr->data == data) {
-            cout<<"Item "<<data<<" encontrado na árvore\n\n!";
+            cout << "Item " << data << " encontrado na árvore!\n\n";
         } else if (ptr->data > data) {
             searchTreeHelper(ptr->leftPtr, data);
         } else if (ptr->data < data) {
             searchTreeHelper(ptr->rigthPtr, data);
         }
     } else {
-        cout<<"Item "<<data<<" não encontrdado!\n\n";
+        cout << "Item " << data << " não encontrdado! \n\n";
     }
 }
 
-template<class NODETYPE>
-void Tree<NODETYPE>::inOrderTraversal() const { inOrderHelper(rootPtr); }
 
 template<class NODETYPE>
 void Tree<NODETYPE>::inOrderHelper(TreeNode<NODETYPE> *ptr) const {
@@ -109,7 +135,6 @@ void Tree<NODETYPE>::inOrderHelper(TreeNode<NODETYPE> *ptr) const {
         inOrderHelper(ptr->rigthPtr);
     }
 }
-
 
 
 template<class NODETYPE>
@@ -126,28 +151,28 @@ int Tree<NODETYPE>::treeHeigthHelper(TreeNode<NODETYPE> *root) {
 }
 
 
+///Remover Item
 template<class NODETYPE>
-TreeNode<NODETYPE>* Tree<NODETYPE>::removeDataHelper(TreeNode<NODETYPE> *root, NODETYPE data) const {
+TreeNode<NODETYPE> *Tree<NODETYPE>::removeDataHelper(TreeNode<NODETYPE> *root, NODETYPE data) const {
 
     if (root == nullptr)
         return root;
-    if ( data < root->getData())
+    if (data < root->getData())
         root->leftPtr = removeDataHelper(root->leftPtr, data);
     else if (data > root->getData())
         root->rigthPtr = removeDataHelper(root->rigthPtr, data);
     else {
-        if (root->leftPtr == NULL){
+        if (root->leftPtr == NULL) {
             TreeNode<NODETYPE> *aux = root->rigthPtr;
             free(root);
             return aux;
-        }
-        else if(root->rigthPtr == nullptr){
+        } else if (root->rigthPtr == nullptr) {
             TreeNode<NODETYPE> *aux = root->leftPtr;
             free(root);
             return aux;
         }
 
-        TreeNode<NODETYPE>* aux = valorMinimoNo(root->rigthPtr);
+        TreeNode<NODETYPE> *aux = valorMinimoNo(root->rigthPtr);
 
         root->data = aux->getData();
 
@@ -156,16 +181,85 @@ TreeNode<NODETYPE>* Tree<NODETYPE>::removeDataHelper(TreeNode<NODETYPE> *root, N
     return root;
 }
 
+///PAra fazer rotação procura o menor valor
 template<class NODETYPE>
-TreeNode<NODETYPE>* Tree<NODETYPE>::valorMinimoNo(TreeNode<NODETYPE> *node) const {
+TreeNode<NODETYPE> *Tree<NODETYPE>::valorMinimoNo(TreeNode<NODETYPE> *node) const {
 
     TreeNode<NODETYPE> *current = node;
 
-    while(current->leftPtr)
+    while (current->leftPtr)
         current = current->leftPtr;
 
     return current;
 }
+///Fim do Remover Item
 
+///Mostra pela linha
+template<class NODETYPE>
+void Tree<NODETYPE>::inOrderLevelHelper(TreeNode<NODETYPE> *root) {
+
+    int h;
+    h = treeHeigthHelper(root);
+    for (int i = 1; i <= h; i++) {
+        cout << "Nível: " << i << endl;
+        printGivenLevel(root, i);
+
+    }
+}
+
+template<class NODETYPE>
+void Tree<NODETYPE>::printGivenLevel(TreeNode<NODETYPE> *root, int level) {
+    if (root == 0)
+        return;
+    if (level == 1)
+        cout << root->data << endl;
+    else if (level > 1) {
+        printGivenLevel(root->leftPtr, level - 1);
+        printGivenLevel(root->rigthPtr, level - 1);
+    }
+}
+///Fim do Mostra pela linha
+
+///Inicio do balanceamentoDSW
+///Pegar o vetor ordernado
+template<class NODETYPE>
+vector<NODETYPE> Tree<NODETYPE>::getOrdenedVector(TreeNode<NODETYPE> *ptr, vector<NODETYPE> vet) {
+    if (ptr != 0) {
+        getOrdenedVector(ptr->leftPtr, vet);
+        vet.push_back(ptr->data);
+        getOrdenedVector(ptr->rigthPtr, vet);
+    }
+
+    return vet;
+}
+
+template<class NODETYPE>
+void Tree<NODETYPE>::applyDSWHelper(TreeNode<NODETYPE> *ptr) {
+    vector<NODETYPE> vet;
+    vector<NODETYPE> vet2;
+    ///Monta o vetor ordenado
+    vet2 = getOrdenedVector(ptr, vet);
+
+    ///Apaga a árvore
+    for(int i = 0; i < vet2.size(); i ++)
+        cout<<vet2.front();
+
+    for (int i = 0; i < vet.size(); i++) {
+        cout<<i;
+        removeDataHelper(ptr, vet[i]);
+    }
+
+
+    ///Cria árvore em vetor
+
+    for (int i = 0; i < vet.size(); i++) {
+        insertNode(vet[i]);
+    }
+
+    inOrderLevelHelper(ptr);
+}
+
+
+///Fim do mostra pela linha
 
 #endif
