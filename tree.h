@@ -238,14 +238,12 @@ void Tree<NODETYPE>::printGivenLevel(TreeNode<NODETYPE> *root, int level) {
 
 template<class NODETYPE>
 void Tree<NODETYPE>::applyDSWHelper(TreeNode<NODETYPE> *ptr) {
-    inOrderLevelHelper(ptr);
     ptr = createBackbone(ptr);
-    int size = nodeCount(ptr);
-    inOrderLevelHelper(ptr);
 
-    int h = treeHeigthHelper(ptr);
-    while( treeHeigthHelper(ptr) > log(nodeCount(ptr)))
-        ptr = balanceTree(ptr, size);
+    int size = nodeCount(ptr);
+
+    ptr = balanceTree(ptr, size);
+
     inOrderLevelHelper(ptr);
 }
 
@@ -310,21 +308,19 @@ int Tree<NODETYPE>::nodeCount(TreeNode<NODETYPE> *root) {
 
 template<class NODETYPE>
 TreeNode<NODETYPE> *Tree<NODETYPE>::balanceTree(TreeNode<NODETYPE> *root, int nNo) {
-    int times = pow(2, ((int) log(nNo + 1) - 1));
+    int nRotations = (int) log2(nNo);
 
     TreeNode<NODETYPE> *newRoot = root;
 
-    for (int i = 0; i < nNo - times; i++) {
-        newRoot = leftRotate(root);
+    for (int i = 0; i < nRotations; i++) {
+        newRoot = leftRotate(newRoot);
         root = newRoot->rigthPtr;
-        for (int j = 0; j < (times % 2 == 0) ? (times / 2) : ((times - 1) / 2); j++) {
+        for (int j = 0; j < nNo / 2 - 1; j++) {
             root = leftRotate(root);
             root = root->rigthPtr;
         }
-        nNo >>= 1;
+        nNo = (nNo % 2 == 0) ? (nNo / 2) : ((nNo - 1) / 2);
     }
-
-    inOrderLevelHelper(newRoot);
     return newRoot;
 }
 
