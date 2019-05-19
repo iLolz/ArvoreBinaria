@@ -7,7 +7,7 @@
 
 using namespace std;
 
-int main() {
+int treeModule() {
 
     Tree<char> intTree;
     char intVal, switchOp, searchValue;
@@ -20,7 +20,8 @@ int main() {
                 "\n4)Percorrer árvore (inOrder)"            ///implementado
                 "\n5)Percorrer árvore (Largura)"            ///implementado
                 "\n6)Altura da árvore"                      ///implenebtado
-                "\n7)balanceamento DSW\n";
+                "\n7)Balanceamento DSW"
+                "\n8)Sair";
 
         cin >> switchOp;
 
@@ -57,6 +58,9 @@ int main() {
                 break;
             case '7':
                 intTree.applyDSW();
+                break;
+            case '8':
+                return 0;
                 break;
             default:
                 cout << "Opção inválida!\n\n";

@@ -308,7 +308,7 @@ int Tree<NODETYPE>::nodeCount(TreeNode<NODETYPE> *root) {
 
 template<class NODETYPE>
 TreeNode<NODETYPE> *Tree<NODETYPE>::balanceTree(TreeNode<NODETYPE> *root, int nNo) {
-    int nRotations = (int) log2(nNo);
+    int nRotations = floor(log2(nNo));
 
     TreeNode<NODETYPE> *newRoot = root;
 
@@ -319,7 +319,7 @@ TreeNode<NODETYPE> *Tree<NODETYPE>::balanceTree(TreeNode<NODETYPE> *root, int nN
             root = leftRotate(root);
             root = root->rigthPtr;
         }
-        nNo = (nNo % 2 == 0) ? (nNo / 2) : ((nNo - 1) / 2);
+        nNo = floor (nNo / 2);
     }
     return newRoot;
 }
